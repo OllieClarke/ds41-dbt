@@ -1,0 +1,47 @@
+sources:
+  - name: jaffle_shop
+    database: raw
+    schema: jaffle_shop
+    tables:
+      - name: orders
+        description: All the orders made in our jaffle shop
+        columns:
+          - name: id
+            description: Primary Key - order id
+            tests:
+              - not_null 
+              - unique 
+          - name: user_id
+            description: foreign key from customers table
+            tests:
+              - not_null 
+              - relationships:
+                  to: source('jaffle_shop','customers')
+                  field: id
+          - name: order_date
+            description: the date of the order
+            tests:
+              - not_null 
+          - name: status
+            description: Order Status
+            tests:
+              - accepted_values:
+                  values: ['returned','completed','return_pending','shipped','placed']
+
+
+      - name: customers
+        description: All our customers
+        columns:
+          - name: id
+            description: Primary Key - our customer id
+            tests:
+              - not_null 
+              - unique 
+          - name: first_name
+            description: first name of our customer
+            tests:
+              - not_null 
+          - name: last_name
+            description: last name of our customer
+            tests: 
+              - not_null 
