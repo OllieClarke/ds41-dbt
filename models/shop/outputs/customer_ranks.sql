@@ -8,6 +8,6 @@ from {{ ref('orders_customers_and_payments') }}
 group by customer_id, first_name, last_name
 )
 select 
-rank() over (order by total_amount desc) as customer_rank
+rank() over (order by total_amount desc, total_orders desc) as customer_rank
 , *
 from agg

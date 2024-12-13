@@ -23,7 +23,7 @@ sources:
             tests:
               - not_null 
           - name: status
-            description: Order Status
+            description: "{{doc('order_status')}}"
             tests:
               - accepted_values:
                   values: ['returned','completed','return_pending','shipped','placed']
@@ -65,6 +65,12 @@ sources:
               - relationships:
                   field: id
                   to: source('jaffle_shop','orders')
+          - name: paymentmethod
+            description: "{{doc('payment_method')}}"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ['credit_card','coupon','bank_transfer','gift_card']
           - name: status
             description: payment attempt status
             tests:
