@@ -1,0 +1,167 @@
+models:
+  - name: stg_jaffle_shop__customers
+    description: Staged version of our customer data
+    columns:
+      - name: customer_id
+        description: primary key
+        tests:
+          - not_null
+          - unique 
+          - relationships:
+              field: id
+              to: source('jaffle_shop','customers')
+      - name: first_name
+        description: customer first name
+        tests:
+          - not_null 
+      - name: last_name
+        description: the last initial
+        tests:
+          - not_null 
+  - name: stg_jaffle_shop__orders
+    description: Staged version of our orders
+    columns:
+      - name: order_id
+        description: primary key
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              field: id
+              to: source('jaffle_shop','orders')
+      - name: customer_id
+        description: foreign key from staged customers
+        tests:
+          - not_null
+          - relationships:
+              field: customer_id
+              to: ref('stg_jaffle_shop__customers')
+      - name: order_date
+        description: date of the order
+        tests:
+          - not_null
+      - name: status
+        description: "{{doc('order_status')}}"
+        tests:
+          - accepted_values:
+              values: ['returned','completed','return_pending','shipped','placed']
+  - name: stg_stripe_payments
+    description: Staged version of our stripe payment data
+    columns:
+      - name: payment_id
+        description: Primary key showign each payment attempt
+        tests:
+          - unique 
+          - not_null
+      - name: order_id
+        description: Foreign key from staged orders
+        tests:
+          - not_null
+          - relationships:
+              field: order_id
+              to: ref('stg_jaffle_shop__orders')
+      - name: payment_method
+        description: "{{ doc('payment_method')}}"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['credit_card','coupon','bank_transfer','gift_card']
+      - name: status
+        description: whether the payment was successful
+        tests:
+          - accepted_values:
+              values: ['success','fail']
+  - name: completed_orders
+    description: just the completed orders
+    columns:
+      - name: order_id
+        description: primary key
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              field: order_id
+              to: ref('stg_jaffle_shop__orders')
+      - name: customer_id
+        description: foreign key from staged customers
+        tests:
+          - not_null
+          - relationships:
+              field: customer_id
+              to: ref('stg_jaffle_shop__customers')
+      - name: order_date
+        description: date of the order
+        tests:
+          - not_null 
+  - name: successful_payments_per_order
+    description: Showing the total successful amount per order
+    columns:
+      - name: order_id
+        description: Primary Key taken from orders table
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              field: id
+              to: source('jaffle_shop','orders')
+      - name: amount
+        description: just the successful payment amounts
+        tests:
+          - not_null 
+  - name: orders_customers_and_payments
+    description: Combining all successful payments with completed orders and their customers
+    columns:
+      - name: order_id
+        description: Primary Key - the order of the customer
+        tests:
+          - unique 
+          - not_null 
+          - relationships:
+              field: order_id
+              to: ref('stg_jaffle_shop__orders')
+      - name: customer_id
+        description: The customer id
+        tests:
+          - not_null
+          - relationships:
+              field: customer_id
+              to: ref('stg_jaffle_shop__customers')
+      - name: order_date
+        description: the date of the order
+        tests:
+          - not_null
+      - name: first_name
+        description: customer first name
+        tests:
+          - not_null 
+      - name: last_name
+        description: the last initial
+        tests:
+          - not_null 
+      - name: amount
+        description: the total successful amount per order
+        tests:
+          - not_null 
+  - name: customer_ranks
+    description: Our customers ranked by their amount spent and orders made with us
+    columns:
+      - name: customer_rank
+        description: the rank of our customer by total amount desc, and total orders desc
+        tests:
+          - not_null 
+      - name: first_name
+        description: customer first name
+        tests:
+          - not_null 
+      - name: last_name
+        description: the last initial
+        tests:
+          - not_null
+      - name: total_amount
+        description: the total amount that customer has spent with us on completed orders
+        tests:
+          - not_null
+      - name: total_orders
+        description: the total completed orders that customer has made with us
+        tests:
+          - not_null
