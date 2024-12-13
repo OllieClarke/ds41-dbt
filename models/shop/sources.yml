@@ -45,3 +45,36 @@ sources:
             description: last name of our customer
             tests: 
               - not_null 
+
+  - name: stripe
+    database: raw
+    schema: stripe
+    tables:
+      - name: payment
+        description: All the payment attempts using stripe
+        columns:
+          - name: id
+            description: Primary Key - each payment attempt
+            tests:
+              - unique
+              - not_null
+          - name: orderid
+            description: Foreign Key from orders table
+            tests: 
+              - not_null
+              - relationships:
+                  field: id
+                  to: source('jaffle_shop','orders')
+          - name: status
+            description: payment attempt status
+            tests:
+              - accepted_values:
+                  values: ['success','fail']
+          - name: amount
+            description: payment amount in cents
+            tests:
+              - not_null 
+          - name: created
+            description: when the payment attempt occurred
+            tests: 
+              - not_null
