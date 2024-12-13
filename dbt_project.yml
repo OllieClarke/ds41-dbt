@@ -41,5 +41,5 @@ models:
     example:
       +materialized: view
 
-    jaffle_shop:
+    shop:
       +materialized: table
